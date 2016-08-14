@@ -185,7 +185,7 @@ def jacc_coef(u,v, u_friends, v_friends):
 def friends_measure(u,v,u_friends,v_friends,G):
      if (u_friends == None)or (v_friends == None):
         return 0
-    else:
+     else:
         u_friends = set(u_friends)
         if v in u_friends:
                 u_friends.remove(v)
