@@ -6,7 +6,7 @@
 
 ## Link Prediction
 
-# In this notebook, we demonstrate how to use GraphLab Create to construct a simple [Link Prediction](http://personal.stevens.edu/~jbao/BIA658A/Session10/liben-nowell.pdf) classifier.
+# In this notebook, we demonstrate how to use GraphLab Create to construct a simple [Link Prediction]classifier.
 # A link prediction classifier is a classifier that can predict the probability of the existence (or non-existence) of a link in a social network (SN). Namely, given a social network, such as Facebook, a link prediction classifier can help to determine if a link between two users exist. Our construction is general and not limited to SN. For example, in a phone call network our classifier can predict whether two subscribers will call each other. 
 # 
 # There are many diverse methods to construct a link prediction classifier, such as using the SN topology, using the SN users' personal details or using posts and other published online content. 
@@ -25,7 +25,9 @@ import graphlab as gl
 sf_links = gl.load_sframe('directed_network_googleplus')
 # Let's view the data
 #print sf_links.head(3)
-
+src = list(sf_links['src'])
+dst = list(sf_links['dst'])
+edge_all = zip(src, dst)
 # Creating SGraph object from the SFrame object
 g = gl.SGraph().add_edges(sf_links, src_field='src', dst_field='dst')
 
@@ -181,26 +183,29 @@ def jacc_coef(u,v, u_friends, v_friends):
 
 '''Friends-measure'''
 def friends_measure(u,v,u_friends,v_friends,G):
-    u_friends = set(u_friends)
-    if v in u_friends:
-            u_friends.remove(v)
-    v_friends = set(v_friends)
-    if u in v_friends:
-        v_friends.remove(u)
-    edge = G.get_edges()
-    sub_src = list(edge['__src_id'])
-    sub_dst = list(edge['__dst_id'])
-    edge_all = zip(sub_src, sub_dst)
-    deta = 0
-    for x in u_friends:
-        for y in v_friends:
-            if (x == y) or ((x,y) or (y,x) in edge_all):
-                deta += 1
-            else:
-                deta = 0
-    return deta
+     if (u_friends == None)or (v_friends == None):
+        return 0
+    else:
+        u_friends = set(u_friends)
+        if v in u_friends:
+                u_friends.remove(v)
+        v_friends = set(v_friends)
+        if u in v_friends:
+            v_friends.remove(u)
+#        edge = G.get_edges()
+#        sub_src = list(edge['__src_id'])
+#        sub_dst = list(edge['__dst_id'])
+#        edge_all = zip(sub_src, sub_dst)
+        deta = 0
+        for x in u_friends:
+            for y in v_friends:
+                if (x == y) or ((x,y) or (y,x) in edge_all):
+                    deta += 1
+                else:
+                    deta = 0
+        return deta
 # Using these three features type we created 12 new features (4 feature for each feature type) that are based on direction of the friendship between 
-# <i>u</i> and <i>v</i> and their friends. 
+# <i>u</i> and <i>v</i>and their friends. 
 # 
 # Please note that The formal mathematical defintion of the feature presented throught this section can be found in [Fire et al. 2014](http://dl.acm.org/citation.cfm?id=2542192).
 
@@ -262,4 +267,4 @@ results = cls.evaluate(test)
 print results
 
 
-# Using the additional link features, we got considerbly better accuracy of around 0.941. We can try to further improve the accuracy by adding additional features or by increasing the size of the training dataset.
+# Using the additional link features, we got considerbly better accuracy of around 0.946. We can try to further improve the accuracy by adding additional features or by increasing the size of the training dataset.
